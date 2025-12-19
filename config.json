@@ -1,6 +1,6 @@
 {
-    "broker-subscriber": "127.0.0.1", 
-    "broker-publisher": "172.29.23.236",
+    "broker-subscriber": "broker.hivemq.com", 
+    "broker-publisher": "broker.hivemq.com",
     "port": 1883,
     "topic": "aurastairs/motion"
 }
