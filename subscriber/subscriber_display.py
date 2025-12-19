@@ -7,7 +7,7 @@ import config
 
 config.load()
 
-BROKER = config.get("broker")
+BROKER = config.get("broker-subscriber")
 PORT = config.get("port")
 TOPIC = config.get("topic")  # must match publisher
 print(f"Using broker: {BROKER}, port: {PORT}, topic: {TOPIC}")
