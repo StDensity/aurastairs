@@ -7,7 +7,7 @@ import config
 
 config.load()
 
-BROKER = config.get("broker")  # IP of the broker device
+BROKER = config.get("broker-publisher")  # IP of the broker device
 PORT = config.get("port")
 TOPIC = config.get("topic")
 print(f"Using broker: {BROKER}, port: {PORT}, topic: {TOPIC}")
@@ -15,6 +15,9 @@ print(f"Using broker: {BROKER}, port: {PORT}, topic: {TOPIC}")
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 client.connect(BROKER, PORT, 60)
 client.loop_start()
+
+good_sensor_data = True  
+error = False
 
 while True:
     # Replace this with your actual sensor reading
