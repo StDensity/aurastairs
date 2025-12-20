@@ -1,4 +1,4 @@
-import time, sys, os
+import time, sys, os, json
 from mqtt_client import MQTTClient
 from sensor_utils import (
     get_motion_sensor,
@@ -41,5 +41,6 @@ while True:
         "sensor_value": sensor_value,
         "is_sensor_valid": is_sensor_valid,
     }
-    mqtt_client.publish(str(sensor_value))
-    time.sleep(1)
+    payload = json.dumps(data)
+    mqtt_client.publish(payload)
+    time.sleep(3)
