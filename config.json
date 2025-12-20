@@ -1,7 +1,10 @@
 {
-    "broker-subscriber": "broker.hivemq.com", 
-    "broker-publisher": "broker.hivemq.com",
-    "port": 1883,
-    "topic": "aurastairs/motion",
-    "max_sensor_log": 100
+   "broker-subscriber": "broker.hivemq.com",
+   "broker-publisher": "broker.hivemq.com",
+   "port": 1883,
+   "topic": "aurastairs/motion",
+   "max_sensor_log": 100,
+
+   "warmup_ignore_s": 5,
+   "publish_interval_s": 3
 }
