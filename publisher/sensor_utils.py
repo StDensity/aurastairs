@@ -9,7 +9,7 @@ def get_motion_sensor():
         0 if no motion
     """
     # Simulate random motion detection
-    return random.choice([0, 1])
+    return random.choice([0, 1, -1])
 
 def is_valid_sensor_data(data):
     """

@@ -34,8 +34,10 @@ while True:
     is_sensor_valid = is_valid_sensor_data(sensor_value)
     if not is_sensor_valid:
         logger.warning(f"Invalid sensor data: {sensor_value}")
-        continue
-    sensor_value = pre_process_sensor_data(sensor_value)
+        is_sensor_valid = False
+    else: 
+        is_sensor_valid = True
+        sensor_value = pre_process_sensor_data(sensor_value)
     logger.debug(f"Preprocessed sensor value: {sensor_value}")
     data = {
         "sensor_value": sensor_value,

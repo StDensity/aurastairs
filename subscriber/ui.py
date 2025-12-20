@@ -98,12 +98,15 @@ class SubscriberUI:
 
         self.status_label.config(text="Status: CONNECTED")
 
-        if sensor_value:
+        if sensor_value == 1:
             self.motion_label.config(text="Motion: YES")
             self.canvas_indicator.itemconfig(self.indicator, fill="green")
-        else:
+        elif sensor_value == 0:
             self.motion_label.config(text="Motion: NO")
             self.canvas_indicator.itemconfig(self.indicator, fill="red")
+        else:
+            self.motion_label.config(text="Motion: UNKNOWN")
+            self.canvas_indicator.itemconfig(self.indicator, fill="gray")
 
         self.error_label.config(text=f"Error: {not is_sensor_valid}")
 
