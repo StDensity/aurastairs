@@ -4,6 +4,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from collections import deque
 import time, matplotlib, os, sys, csv
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
 
@@ -24,29 +25,65 @@ class SubscriberUI:
         self.missed_packets = 0
         self.max_sensor_log = config.get("max_sensor_log", 150)
         self.sensor_log = deque(maxlen=self.max_sensor_log)
+        # --- Top container for scrollable content ---
+        self.top_frame = tk.Frame(root)
+        self.top_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        # --- Container for dynamic content ---
-        self.content_frame = tk.Frame(root)
-        self.content_frame.pack(fill=tk.BOTH, expand=True)
+        self.vscrollbar = tk.Scrollbar(self.top_frame, orient=tk.VERTICAL)
+        self.vscrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-        # --- Bottom buttons ---
-        self.button_frame = tk.Frame(root)
-        self.button_frame.pack(pady=5)
+        self.hscrollbar = tk.Scrollbar(self.top_frame, orient=tk.HORIZONTAL)
+        self.hscrollbar.pack(side=tk.BOTTOM, fill=tk.X)
+
+        self.canvas = tk.Canvas(
+            self.top_frame,
+            yscrollcommand=self.vscrollbar.set,
+            xscrollcommand=self.hscrollbar.set,
+            highlightthickness=0,
+        )
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.vscrollbar.config(command=self.canvas.yview)
+        self.hscrollbar.config(command=self.canvas.xview)
+
+        self.content_frame = tk.Frame(self.canvas)
+        self.canvas.create_window(0, 0, window=self.content_frame, anchor="nw")
+
+        # Configure scroll region
+        def on_frame_configure(event=None):
+            self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+        self.content_frame.bind("<Configure>", on_frame_configure)
+
+        # Bind mousewheel scrolling
+        self.canvas.bind(
+            "<MouseWheel>",
+            lambda e: self.canvas.yview_scroll(-1 if e.delta > 0 else 1, "units"),
+        )
+        self.canvas.bind(
+            "<Button-4>", lambda e: self.canvas.yview_scroll(-1, "units")
+        )  # Linux scroll up
+        self.canvas.bind(
+            "<Button-5>", lambda e: self.canvas.yview_scroll(1, "units")
+        )  # Linux scroll down
+
+        # --- Top buttons inside scrollable content ---
+        self.button_frame = tk.Frame(self.content_frame)
+        self.button_frame.pack(side=tk.TOP, fill=tk.X, pady=5)
 
         self.visualize_btn = tk.Button(
             self.button_frame, text="Visualization", command=self.show_visualization
         )
-        self.visualize_btn.grid(row=0, column=0, padx=5)
+        self.visualize_btn.pack(side=tk.LEFT, padx=5)
 
         self.perf_test_btn = tk.Button(
             self.button_frame, text="Performance Test", command=self.show_perf_test
         )
-        self.perf_test_btn.grid(row=0, column=1, padx=5)
+        self.perf_test_btn.pack(side=tk.LEFT, padx=5)
 
         self.update_cfg_btn = tk.Button(
             self.button_frame, text="Update Config", command=self.show_update_config
         )
-        self.update_cfg_btn.grid(row=0, column=2, padx=5)
+        self.update_cfg_btn.pack(side=tk.LEFT, padx=5)
 
         # --- Visualization Frame (default) ---
         self.max_points = max_points
@@ -85,15 +122,14 @@ class SubscriberUI:
             self.figure, master=self.visualization_frame
         )
         self.canvas_graph.get_tk_widget().pack()
-        
+
         # --- Save CSV button in visualization frame ---
         self.save_csv_btn = tk.Button(
             self.visualization_frame,
             text="Save Last 100 to CSV",
-            command=self.save_sensor_csv
+            command=self.save_sensor_csv,
         )
         self.save_csv_btn.pack(pady=5)
-
 
         # --- Placeholder frames ---
         self.perf_test_frame = tk.Frame(self.content_frame)
@@ -273,6 +309,9 @@ class SubscriberUI:
                 writer.writeheader()
                 for entry in self.sensor_log:
                     writer.writerow(entry)
-            messagebox.showinfo("Success", f"Last {len(self.sensor_log)} sensor readings saved to {filename}")
+            messagebox.showinfo(
+                "Success",
+                f"Last {len(self.sensor_log)} sensor readings saved to {filename}",
+            )
         except Exception as e:
             messagebox.showerror("Error", f"Could not save CSV: {e}")
