@@ -1,28 +1,45 @@
-import os
-import sys
-import time
-import paho.mqtt.client as mqtt
+import time, sys, os
+from mqtt_client import MQTTClient
+from sensor_utils import (
+    get_motion_sensor,
+    is_valid_sensor_data,
+    pre_process_sensor_data,
+)
+from logger_utils import get_logger, clear_log
+import logging
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
 import config
 
+clear_log("publisher.log")
+
+logger = get_logger(__name__, log_file="publisher.log", level=logging.DEBUG)
+
 config.load()
+logger.debug("Configuration loaded")
 
-BROKER = config.get("broker-publisher")  # IP of the broker device
-PORT = config.get("port")
-TOPIC = config.get("topic")
-print(f"Using broker: {BROKER}, port: {PORT}, topic: {TOPIC}")
+mqtt_client = MQTTClient(
+    broker=config.get("broker-publisher"),
+    port=config.get("port"),
+    topic=config.get("topic"),
+)
 
-client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
-client.connect(BROKER, PORT, 60)
-client.loop_start()
+mqtt_client.connect()
 
-good_sensor_data = True  
-error = False
 
 while True:
-    # Replace this with your actual sensor reading
-    sensor_value = 42
-    msg_info = client.publish(TOPIC, str(sensor_value), qos=1)
-    msg_info.wait_for_publish()
-    print(f"Published sensor value: {sensor_value}")
+    sensor_value = get_motion_sensor()
+    is_sensor_valid = is_valid_sensor_data(sensor_value)
+    if not is_sensor_valid:
+        logger.warning(f"Invalid sensor data: {sensor_value}")
+        continue
+    sensor_value = pre_process_sensor_data(sensor_value)
+    logger.debug(f"Preprocessed sensor value: {sensor_value}")
+    data = {
+        "sensor_value": sensor_value,
+        "is_sensor_valid": is_sensor_valid,
+    }
+    mqtt_client.publish(str(sensor_value))
     time.sleep(1)

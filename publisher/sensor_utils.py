@@ -11,9 +11,23 @@ def get_motion_sensor():
     # Simulate random motion detection
     return random.choice([0, 1])
 
-# Example usage
-if __name__ == "__main__":
-    while True:
-        motion = get_motion_sensor()
-        print(f"Motion detected: {motion}")
-        time.sleep(1)  # simulate 1-second polling
+def is_valid_sensor_data(data):
+    """
+    Validate the sensor data.
+    Args:
+        data: The sensor data to validate.
+    Returns:
+        True if data is valid, False otherwise.
+    """
+    return data in [0, 1]
+
+def pre_process_sensor_data(data):
+    """
+    Pre-process the sensor data before publishing.
+    Args:
+        data: The raw sensor data.
+    Returns:
+        Processed sensor data.
+    """
+    # Example pre-processing: just return the data as is for now
+    return data
