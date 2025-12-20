@@ -1,6 +1,7 @@
 """Main UI orchestrator for AuraStairs Subscriber."""
 
 import tkinter as tk
+import psutil
 from collections import deque
 import time
 import os
@@ -67,6 +68,9 @@ class SubscriberUI:
         # Show default frame
         self.show_visualization()
 
+        # Start periodic subscriber metrics updates
+        self._start_subscriber_metrics_polling()
+
     def _setup_scrollable_container(self):
         """Setup the scrollable canvas and content frame."""
         self.top_frame = tk.Frame(self.root)
@@ -104,6 +108,20 @@ class SubscriberUI:
         )
         self.canvas.bind("<Button-4>", lambda e: self.canvas.yview_scroll(-1, "units"))
         self.canvas.bind("<Button-5>", lambda e: self.canvas.yview_scroll(1, "units"))
+
+    def _start_subscriber_metrics_polling(self):
+        """Periodically gather and display subscriber system metrics."""
+        try:
+            cpu = psutil.cpu_percent(interval=0.0)
+            mem = psutil.virtual_memory().percent
+            version = "0.8"
+            self.visualization_frame.update_subscriber_system_info(
+                cpu_percent=cpu, mem_percent=mem, version=version
+            )
+        except Exception:
+            pass
+        # Poll every second
+        self.root.after(1000, self._start_subscriber_metrics_polling)
 
     def _setup_button_frame(self):
         """Setup navigation buttons."""

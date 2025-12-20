@@ -31,12 +31,20 @@ class VisualizationFrame(tk.Frame):
         self.error_label.pack(pady=5)
 
         # System info labels
-        self.cpu_label = tk.Label(self, text="CPU: N/A%")
+        self.cpu_label = tk.Label(self, text="Publisher CPU: N/A%")
         self.cpu_label.pack()
-        self.mem_label = tk.Label(self, text="Memory: N/A%")
+        self.mem_label = tk.Label(self, text="Publisher Memory: N/A%")
         self.mem_label.pack()
-        self.version_label = tk.Label(self, text="Client Version: N/A")
+        self.version_label = tk.Label(self, text="Publisher Version: N/A")
         self.version_label.pack(pady=5)
+
+        # Subscriber system info labels
+        self.sub_cpu_label = tk.Label(self, text="Subscriber CPU: N/A%")
+        self.sub_cpu_label.pack()
+        self.sub_mem_label = tk.Label(self, text="Subscriber Memory: N/A%")
+        self.sub_mem_label.pack()
+        self.sub_version_label = tk.Label(self, text="Subscriber Version: N/A")
+        self.sub_version_label.pack(pady=5)
 
         # Indicator canvas
         self.canvas_indicator = tk.Canvas(self, width=60, height=60)
@@ -101,16 +109,31 @@ class VisualizationFrame(tk.Frame):
         """Update CPU, memory, and version labels."""
         if cpu_percent is not None:
             try:
-                self.cpu_label.config(text=f"CPU: {float(cpu_percent):.1f}%")
+                self.cpu_label.config(text=f"Publisher CPU: {float(cpu_percent):.1f}%")
             except Exception:
-                self.cpu_label.config(text=f"CPU: {cpu_percent}")
+                self.cpu_label.config(text=f"Publisher CPU: {cpu_percent}")
         if mem_percent is not None:
             try:
-                self.mem_label.config(text=f"Memory: {float(mem_percent):.1f}%")
+                self.mem_label.config(text=f"Publisher Memory: {float(mem_percent):.1f}%")
             except Exception:
-                self.mem_label.config(text=f"Memory: {mem_percent}")
+                self.mem_label.config(text=f"Publisher Memory: {mem_percent}")
         if version is not None:
-            self.version_label.config(text=f"Version: {version}")
+            self.version_label.config(text=f"Publisher Version: {version}")
+
+    def update_subscriber_system_info(self, cpu_percent=None, mem_percent=None, version=None):
+        """Update subscriber CPU, memory, and version labels."""
+        if cpu_percent is not None:
+            try:
+                self.sub_cpu_label.config(text=f"Subscriber CPU: {float(cpu_percent):.1f}%")
+            except Exception:
+                self.sub_cpu_label.config(text=f"Subscriber CPU: {cpu_percent}")
+        if mem_percent is not None:
+            try:
+                self.sub_mem_label.config(text=f"Subscriber Memory: {float(mem_percent):.1f}%")
+            except Exception:
+                self.sub_mem_label.config(text=f"Subscriber Memory: {mem_percent}")
+        if version is not None:
+            self.sub_version_label.config(text=f"Subscriber Version: {version}")
 
 
 class PerformanceTestFrame(tk.Frame):
