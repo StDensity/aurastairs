@@ -3,14 +3,18 @@ from tkinter import messagebox
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from collections import deque
-import time, matplotlib
+import time, matplotlib, os, sys, csv
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import config
+
+config.load()
 
 
 class SubscriberUI:
     def __init__(self, root, max_points=50):
         self.root = root
         self.root.title("AuraStairs – Motion Monitor")
-        self.root.geometry("400x400")
+        self.root.geometry("500x500")
         self.root.resizable(False, False)
         self.mode = "visualization"
         self.first_seq = None
@@ -18,6 +22,8 @@ class SubscriberUI:
         self.total_received = 0
         self.total_expected = 0
         self.missed_packets = 0
+        self.max_sensor_log = config.get("max_sensor_log", 150)
+        self.sensor_log = deque(maxlen=self.max_sensor_log)
 
         # --- Container for dynamic content ---
         self.content_frame = tk.Frame(root)
@@ -79,6 +85,15 @@ class SubscriberUI:
             self.figure, master=self.visualization_frame
         )
         self.canvas_graph.get_tk_widget().pack()
+        
+        # --- Save CSV button in visualization frame ---
+        self.save_csv_btn = tk.Button(
+            self.visualization_frame,
+            text="Save Last 100 to CSV",
+            command=self.save_sensor_csv
+        )
+        self.save_csv_btn.pack(pady=5)
+
 
         # --- Placeholder frames ---
         self.perf_test_frame = tk.Frame(self.content_frame)
@@ -177,6 +192,15 @@ class SubscriberUI:
         self.ax.set_xlim(0, self.max_points)
         self.canvas_graph.draw()
 
+        self.sensor_log.append(
+            {
+                "timestamp": data.get("timestamp"),
+                "sensor_value": data.get("sensor_value"),
+                "is_sensor_valid": data.get("is_sensor_valid"),
+                "seq": data.get("seq"),
+            }
+        )
+
     def update_perf_data(self, data):
         self.root.after(0, self._update_perf_ui, data)
 
@@ -231,9 +255,24 @@ class SubscriberUI:
                     loss_percent = 0
                 f.write(f"Packet Loss: {loss_percent:.1f}%\n")
                 f.write(f"Total Bytes: {self.total_bytes}\n")
-                elapsed_sec = max(1, self.total_expected * 3)  # same assumption as throughput
+                elapsed_sec = max(
+                    1, self.total_expected * 3
+                )  # same assumption as throughput
                 throughput = self.total_bytes / elapsed_sec
                 f.write(f"Approx Throughput: {throughput:.1f} B/s\n")
             tk.messagebox.showinfo("Success", f"Performance log saved to {filename}")
         except Exception as e:
             tk.messagebox.showerror("Error", f"Could not save log: {e}")
+
+    def save_sensor_csv(self):
+        filename = f"sensor_log_{int(time.time())}.csv"
+        try:
+            with open(filename, "w", newline="") as csvfile:
+                fieldnames = ["timestamp", "sensor_value", "is_sensor_valid", "seq"]
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
+                for entry in self.sensor_log:
+                    writer.writerow(entry)
+            messagebox.showinfo("Success", f"Last {len(self.sensor_log)} sensor readings saved to {filename}")
+        except Exception as e:
+            messagebox.showerror("Error", f"Could not save CSV: {e}")

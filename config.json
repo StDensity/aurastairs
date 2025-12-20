@@ -2,5 +2,6 @@
     "broker-subscriber": "broker.hivemq.com", 
     "broker-publisher": "broker.hivemq.com",
     "port": 1883,
-    "topic": "aurastairs/motion"
+    "topic": "aurastairs/motion",
+    "max_sensor_log": 100
 }
