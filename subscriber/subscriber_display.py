@@ -1,28 +1,29 @@
 import os
 import sys
-import time
+import tkinter as tk
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import config
-from subscriber.mqtt_subscriber import MQTTSubscriber  
+from mqtt_subscriber import MQTTSubscriber
+from ui import SubscriberUI
 
 config.load()
 
 BROKER = config.get("broker-subscriber")
 PORT = config.get("port")
-TOPIC = config.get("topic")  
+TOPIC = config.get("topic")
+
+root = tk.Tk()
+ui = SubscriberUI(root)
 
 subscriber = MQTTSubscriber(
     broker=BROKER,
     port=PORT,
     topic=TOPIC,
+    on_message_callback=ui.update_from_data,
 )
 
 subscriber.connect()
 
-
-try:
-    while True:
-        time.sleep(1)
-except KeyboardInterrupt:
-    pass
+root.mainloop()
