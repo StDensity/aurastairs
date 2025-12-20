@@ -162,6 +162,14 @@ class SubscriberUI:
         self.visualization_frame.update_motion(sensor_value, is_sensor_valid)
         self.visualization_frame.update_graph(sensor_value)
 
+        # Update system info if available
+        cpu_percent = data.get("cpu_percent")
+        mem_percent = data.get("mem_percent")
+        version = data.get("version")
+        self.visualization_frame.update_system_info(
+            cpu_percent=cpu_percent, mem_percent=mem_percent, version=version
+        )
+
         self.sensor_log.append(
             {
                 "timestamp": data.get("timestamp"),

@@ -1,4 +1,5 @@
-import time, sys, os, json, logging
+import time, sys, os, json, logging, subprocess
+import psutil
 from mqtt_client import MQTTClient
 from sensor_utils import (
     get_motion_sensor,
@@ -15,6 +16,8 @@ logger = get_logger(__name__, log_file="publisher.log", level=logging.DEBUG)
 
 config.load()
 logger.debug("Configuration loaded")
+
+VERSION = 0.8
 
 
 def handle_config_update(config_data):
@@ -67,11 +70,18 @@ while True:
 
     # --- Publish pacing ---
     if now - last_publish_time >= PUBLISH_INTERVAL:
+        # Collect system metrics
+        cpu_percent = psutil.cpu_percent(interval=0.0)
+        mem_percent = psutil.virtual_memory().percent
+
         data = {
             "sensor_value": sensor_value,
             "is_sensor_valid": is_sensor_valid,
             "timestamp": now,
             "seq": seq_counter,
+            "cpu_percent": cpu_percent,
+            "mem_percent": mem_percent,
+            "version": VERSION,
         }
 
         payload = json.dumps(data)

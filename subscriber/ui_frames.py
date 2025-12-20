@@ -30,6 +30,14 @@ class VisualizationFrame(tk.Frame):
         self.error_label = tk.Label(self, text="Error: NONE")
         self.error_label.pack(pady=5)
 
+        # System info labels
+        self.cpu_label = tk.Label(self, text="CPU: N/A%")
+        self.cpu_label.pack()
+        self.mem_label = tk.Label(self, text="Memory: N/A%")
+        self.mem_label.pack()
+        self.version_label = tk.Label(self, text="Client Version: N/A")
+        self.version_label.pack(pady=5)
+
         # Indicator canvas
         self.canvas_indicator = tk.Canvas(self, width=60, height=60)
         self.canvas_indicator.pack(pady=10)
@@ -88,6 +96,21 @@ class VisualizationFrame(tk.Frame):
         self.line.set_data(range(len(self.data_queue)), list(self.data_queue))
         self.ax.set_xlim(0, self.max_points)
         self.canvas_graph.draw()
+
+    def update_system_info(self, cpu_percent=None, mem_percent=None, version=None):
+        """Update CPU, memory, and version labels."""
+        if cpu_percent is not None:
+            try:
+                self.cpu_label.config(text=f"CPU: {float(cpu_percent):.1f}%")
+            except Exception:
+                self.cpu_label.config(text=f"CPU: {cpu_percent}")
+        if mem_percent is not None:
+            try:
+                self.mem_label.config(text=f"Memory: {float(mem_percent):.1f}%")
+            except Exception:
+                self.mem_label.config(text=f"Memory: {mem_percent}")
+        if version is not None:
+            self.version_label.config(text=f"Version: {version}")
 
 
 class PerformanceTestFrame(tk.Frame):
