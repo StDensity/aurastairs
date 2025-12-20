@@ -52,7 +52,12 @@ class SubscriberUI:
         self.perf_test_frame = PerformanceTestFrame(self.content_frame)
         self.perf_test_frame.set_on_download_log_callback(self._on_download_perf_log)
 
-        self.update_config_frame = ConfigFrame(self.content_frame)
+        # Setup config frame (don't pack it yet)
+        self.config_frame = ConfigFrame(self.content_frame)
+        self.config_frame.set_config_values(config._config)
+        self.config_frame.update_config_btn.config(
+            command=self.config_frame.on_update_config
+        )
 
         # Show default frame
         self.show_visualization()
@@ -135,7 +140,7 @@ class SubscriberUI:
     def show_update_config(self):
         """Show config frame."""
         self.mode = "config"
-        self._switch_frame(self.update_config_frame)
+        self._switch_frame(self.config_frame)
 
     def update_from_data(self, data):
         """Update UI with incoming sensor data."""

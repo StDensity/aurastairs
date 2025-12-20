@@ -5,6 +5,9 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from collections import deque
 import matplotlib
+import json
+from tkinter import messagebox
+import config  # Assuming config is a module that provides CONFIG_PATH
 
 
 class VisualizationFrame(tk.Frame):
@@ -145,4 +148,72 @@ class ConfigFrame(tk.Frame):
 
     def __init__(self, parent):
         super().__init__(parent)
-        tk.Label(self, text="Update Config GUI Placeholder").pack(pady=50)
+
+        # Title
+        tk.Label(self, text="Configuration Settings", font=("Arial", 14, "bold")).pack(
+            pady=10
+        )
+
+        # Dictionary to hold entry widgets
+        self.entries = {}
+
+        # Load current configuration
+        self.load_config()
+
+        # Create input fields dynamically
+        for key, value in self.config_data.items():
+            frame = tk.Frame(self)
+            frame.pack(pady=5, padx=10, fill=tk.X)
+
+            label = tk.Label(frame, text=f"{key}:", width=20, anchor="w")
+            label.pack(side=tk.LEFT)
+
+            entry = tk.Entry(frame, width=30)
+            entry.pack(side=tk.LEFT, padx=5)
+            entry.insert(0, str(value))
+            self.entries[key] = entry
+
+        # Update config button
+        self.update_config_btn = tk.Button(
+            self, text="Update Config", command=self.on_update_config
+        )
+        self.update_config_btn.pack(pady=15)
+
+    def load_config(self):
+        """Load configuration from config.json."""
+        try:
+            with open(config.CONFIG_PATH, "r") as f:
+                self.config_data = json.load(f)
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to load config: {e}")
+            self.config_data = {}
+
+    def on_update_config(self):
+        """Handle update config action."""
+        try:
+            # Read values from entry widgets
+            config_data = {}
+            for key, entry in self.entries.items():
+                value = entry.get()
+                # Try to convert to appropriate type
+                if value.isdigit():
+                    config_data[key] = int(value)
+                elif value.replace(".", "", 1).isdigit():
+                    config_data[key] = float(value)
+                else:
+                    config_data[key] = value
+
+            # Write to config file
+            with open(config.CONFIG_PATH, "w") as f:
+                json.dump(config_data, f, indent=4)
+
+            messagebox.showinfo("Success", "Configuration updated successfully!")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to update config: {e}")
+
+    def set_config_values(self, config_values):
+        """Set the configuration values in the UI."""
+        for key, value in config_values.items():
+            if key in self.entries:
+                self.entries[key].delete(0, tk.END)
+                self.entries[key].insert(0, str(value))
