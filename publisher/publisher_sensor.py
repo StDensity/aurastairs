@@ -29,20 +29,24 @@ mqtt_client = MQTTClient(
 mqtt_client.connect()
 
 
+seq_counter = 0
+
 while True:
     sensor_value = get_motion_sensor()
     is_sensor_valid = is_valid_sensor_data(sensor_value)
     if not is_sensor_valid:
-        logger.warning(f"Invalid sensor data: {sensor_value}")
         is_sensor_valid = False
-    else: 
+    else:
         is_sensor_valid = True
         sensor_value = pre_process_sensor_data(sensor_value)
-    logger.debug(f"Preprocessed sensor value: {sensor_value}")
+
     data = {
         "sensor_value": sensor_value,
         "is_sensor_valid": is_sensor_valid,
+        "timestamp": time.time(),
+        "seq": seq_counter
     }
     payload = json.dumps(data)
     mqtt_client.publish(payload)
+    seq_counter += 1
     time.sleep(3)

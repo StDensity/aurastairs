@@ -3,7 +3,7 @@ from tkinter import messagebox
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from collections import deque
-
+import time
 
 class SubscriberUI:
     def __init__(self, root, max_points=50):
@@ -11,6 +11,7 @@ class SubscriberUI:
         self.root.title("AuraStairs – Motion Monitor")
         self.root.geometry("400x400")
         self.root.resizable(False, False)
+        self.mode = "visualization"
 
         # --- Container for dynamic content ---
         self.content_frame = tk.Frame(root)
@@ -72,6 +73,26 @@ class SubscriberUI:
         self.current_frame = None
         self.show_visualization()
 
+         # --- Performance test frame ---
+        self.perf_test_frame = tk.Frame(self.content_frame)
+
+        tk.Label(self.perf_test_frame, text="Performance Test").pack(pady=5)
+
+        self.latency_label = tk.Label(self.perf_test_frame, text="Latency: N/A ms")
+        self.latency_label.pack()
+
+        self.packet_loss_label = tk.Label(self.perf_test_frame, text="Packet Loss: N/A")
+        self.packet_loss_label.pack()
+
+        self.throughput_label = tk.Label(self.perf_test_frame, text="Throughput: N/A B/s")
+        self.throughput_label.pack()
+
+        # Keep track
+        self.last_seq = None
+        self.total_packets = 0
+        self.missed_packets = 0
+        self.total_bytes = 0
+
     # --- Switching frames ---
     def _switch_frame(self, new_frame):
         if self.current_frame:
@@ -80,17 +101,23 @@ class SubscriberUI:
         self.current_frame.pack(fill=tk.BOTH, expand=True)
 
     def show_visualization(self):
+        self.mode = "visualization"
         self._switch_frame(self.visualization_frame)
 
     def show_perf_test(self):
+        self.mode = "performance"
         self._switch_frame(self.perf_test_frame)
 
     def show_update_config(self):
+        self.mode = "config"
         self._switch_frame(self.update_config_frame)
 
     # --- Update visualization data ---
     def update_from_data(self, data):
-        self.root.after(0, self._update_ui, data)
+        if self.mode == "visualization":
+            self.root.after(0, self._update_ui, data)
+        elif self.mode == "performance":
+            self.root.after(0, self._update_perf_ui, data)
 
     def _update_ui(self, data):
         sensor_value = data.get("sensor_value", 0)
@@ -115,3 +142,31 @@ class SubscriberUI:
         self.line.set_data(range(len(self.data_queue)), list(self.data_queue))
         self.ax.set_xlim(0, self.max_points)
         self.canvas_graph.draw()
+
+    def update_perf_data(self, data):
+        self.root.after(0, self._update_perf_ui, data)
+
+    def _update_perf_ui(self, data):
+        recv_time = time.time()
+        sent_time = data.get("timestamp", recv_time)
+        seq = data.get("seq", 0)
+        payload_size = len(str(data).encode("utf-8"))
+
+        # --- Latency ---
+        latency_ms = (recv_time - sent_time) * 1000
+        self.latency_label.config(text=f"Latency: {latency_ms:.1f} ms")
+
+        # --- Packet loss ---
+        self.total_packets += 1
+        if self.last_seq is not None:
+            missed = max(0, seq - self.last_seq - 1)
+            self.missed_packets += missed
+        self.last_seq = seq
+        loss_percent = (self.missed_packets / self.total_packets) * 100
+        self.packet_loss_label.config(text=f"Packet Loss: {loss_percent:.1f}%")
+
+        # --- Throughput (approx) ---
+        self.total_bytes += payload_size
+        elapsed_sec = max(1, self.total_packets * 3)  # assuming publisher interval ~3s
+        throughput = self.total_bytes / elapsed_sec
+        self.throughput_label.config(text=f"Throughput: {throughput:.1f} B/s")
