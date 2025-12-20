@@ -16,10 +16,28 @@ logger = get_logger(__name__, log_file="publisher.log", level=logging.DEBUG)
 config.load()
 logger.debug("Configuration loaded")
 
+
+def handle_config_update(config_data):
+    """Handle incoming configuration updates."""
+    try:
+        # Update config file
+        with open(config.CONFIG_PATH, "w") as f:
+            json.dump(config_data, f, indent=4)
+        logger.info(f"Config file updated: {config_data}")
+
+        # Reload config in memory
+        config.load()
+        logger.info("Config reloaded")
+    except Exception as e:
+        logger.error(f"Failed to update config: {e}")
+
+
 mqtt_client = MQTTClient(
     broker=config.get("broker-publisher"),
     port=config.get("port"),
     topic=config.get("topic"),
+    config_topic=config.get("config_topic"),
+    on_config_update=handle_config_update,
 )
 mqtt_client.connect()
 

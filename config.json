@@ -3,8 +3,9 @@
     "broker-publisher": "broker.hivemq.com",
     "port": 1883,
     "topic": "aurastairs/motion",
+    "config_topic": "aurastairs/config",
     "max_sensor_log": 100,
     "warmup_ignore_s": 5,
     "publish_interval_s": 3,
-    "test": 39
+    "test": 12
 }
