@@ -17,11 +17,14 @@ config.load()
 class SubscriberUI:
     """Main UI class for AuraStairs Subscriber."""
 
-    def __init__(self, root, max_points=50):
+    def __init__(self, root, max_points=50, publish_config_callback=None):
         self.root = root
         self.root.title("AuraStairs – Motion Monitor")
         self.root.geometry("500x500")
         self.root.resizable(False, False)
+
+        # Store publish callback
+        self.publish_config_callback = publish_config_callback
 
         # UI state
         self.mode = "visualization"
@@ -53,7 +56,9 @@ class SubscriberUI:
         self.perf_test_frame.set_on_download_log_callback(self._on_download_perf_log)
 
         # Setup config frame (don't pack it yet)
-        self.config_frame = ConfigFrame(self.content_frame)
+        self.config_frame = ConfigFrame(
+            self.content_frame, publish_callback=self.publish_config_callback
+        )
         self.config_frame.set_config_values(config._config)
         self.config_frame.update_config_btn.config(
             command=self.config_frame.on_update_config

@@ -15,14 +15,16 @@ PORT = config.get("port")
 TOPIC = config.get("topic")
 
 root = tk.Tk()
-ui = SubscriberUI(root)
 
 subscriber = MQTTSubscriber(
     broker=BROKER,
     port=PORT,
     topic=TOPIC,
-    on_message_callback=ui.update_from_data,
+    on_message_callback=None,
 )
+
+ui = SubscriberUI(root, publish_config_callback=subscriber.publish_config)
+subscriber.on_message_callback = ui.update_from_data
 
 subscriber.connect()
 

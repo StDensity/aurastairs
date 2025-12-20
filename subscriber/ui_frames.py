@@ -146,8 +146,16 @@ class PerformanceTestFrame(tk.Frame):
 class ConfigFrame(tk.Frame):
     """Frame for configuration settings."""
 
-    def __init__(self, parent):
+    def __init__(self, parent, publish_callback=None):
         super().__init__(parent)
+
+        # Store publish callback
+        self.publish_callback = publish_callback
+
+        # Setup logger
+        from logger_utils import get_logger
+
+        self.logger = get_logger(__name__, log_file="config_updates.log")
 
         # Title
         tk.Label(self, text="Configuration Settings", font=("Arial", 14, "bold")).pack(
@@ -207,8 +215,19 @@ class ConfigFrame(tk.Frame):
             with open(config.CONFIG_PATH, "w") as f:
                 json.dump(config_data, f, indent=4)
 
-            messagebox.showinfo("Success", "Configuration updated successfully!")
+            # Log the config update
+            self.logger.info(f"Config updated: {config_data}")
+
+            # Publish config to MQTT broker
+            if self.publish_callback:
+                self.publish_callback(config_data)
+                self.logger.info("Config published to MQTT broker")
+
+            messagebox.showinfo(
+                "Success", "Configuration updated and published successfully!"
+            )
         except Exception as e:
+            self.logger.error(f"Failed to update config: {e}")
             messagebox.showerror("Error", f"Failed to update config: {e}")
 
     def set_config_values(self, config_values):

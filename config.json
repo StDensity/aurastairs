@@ -6,5 +6,5 @@
     "max_sensor_log": 100,
     "warmup_ignore_s": 5,
     "publish_interval_s": 3,
-    "test": 35
+    "test": 39
 }

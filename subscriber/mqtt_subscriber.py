@@ -31,7 +31,9 @@ class MQTTSubscriber:
         else:
             logger.error(f"Connect failed: {rc}")
 
-    def on_disconnect(self, client, userdata, disconnect_flags, reason_code, properties):
+    def on_disconnect(
+        self, client, userdata, disconnect_flags, reason_code, properties
+    ):
         self.connected = False
         logger.warning(f"Disconnected: {reason_code}")
 
@@ -47,3 +49,13 @@ class MQTTSubscriber:
     def connect(self):
         self.client.connect(self.broker, self.port, 10)
         self.client.loop_start()
+
+    def publish_config(self, config_data):
+        """Publish configuration update to MQTT broker."""
+        try:
+            config_topic = "aurastairs/config"
+            payload = json.dumps(config_data)
+            self.client.publish(config_topic, payload)
+            logger.info(f"Published config to {config_topic}: {config_data}")
+        except Exception as e:
+            logger.error(f"Failed to publish config: {e}")
