@@ -13,6 +13,6 @@ __pycache__/
 .idea/
 
 # Co
-*.txt
+*log.txt
 *.csv
 logs/

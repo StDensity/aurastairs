@@ -1,5 +1,6 @@
 import random
 import time
+from gpiozero import MotionSensor
 
 def get_motion_sensor():
     """
@@ -10,6 +11,13 @@ def get_motion_sensor():
     """
     # Simulate random motion detection
     return random.choice([0, 1, -1])
+
+def get_real_motion_sensor():
+
+    pir = MotionSensor(4)
+    while True:
+        return pir.motion_detected
+        
 
 def is_valid_sensor_data(data):
     """

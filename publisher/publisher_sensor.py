@@ -3,6 +3,7 @@ import psutil
 from mqtt_client import MQTTClient
 from sensor_utils import (
     get_motion_sensor,
+    get_real_motion_sensor,
     is_valid_sensor_data,
     pre_process_sensor_data,
 )
@@ -62,7 +63,7 @@ while True:
         time.sleep(0.1)
         continue
 
-    sensor_value = get_motion_sensor()
+    sensor_value = get_real_motion_sensor()
     is_sensor_valid = is_valid_sensor_data(sensor_value)
 
     if is_sensor_valid:
