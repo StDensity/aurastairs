@@ -30,7 +30,6 @@ class MQTTClient:
             self.connected = True
             self.disconnected = False
             logger.info("Connected to MQTT broker")
-            # Subscribe to config topic if provided
             if self.config_topic:
                 client.subscribe(self.config_topic)
                 logger.info(f"Subscribed to config topic: {self.config_topic}")

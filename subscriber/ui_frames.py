@@ -7,7 +7,7 @@ from collections import deque
 import matplotlib
 import json
 from tkinter import messagebox
-import config  # Assuming config is a module that provides CONFIG_PATH
+import config  
 
 
 class VisualizationFrame(tk.Frame):

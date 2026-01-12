@@ -1,10 +1,10 @@
 {
-    "broker-subscriber": "broker.hivemq.com",
-    "broker-publisher": "broker.hivemq.com",
+    "broker-subscriber": "10.42.0.1",
+    "broker-publisher": "10.42.0.1",
     "port": 1883,
     "topic": "aurastairs/motion",
     "config_topic": "aurastairs/config",
-    "max_sensor_log": 100,
+    "max_sensor_log": 50,
     "warmup_ignore_s": 5,
     "publish_interval_s": 3,
     "test": 1155

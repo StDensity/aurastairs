@@ -37,5 +37,4 @@ def pre_process_sensor_data(data):
     Returns:
         Processed sensor data.
     """
-    # Example pre-processing: just return the data as is for now
     return data

@@ -24,12 +24,10 @@ VERSION = 0.8
 def handle_config_update(config_data):
     """Handle incoming configuration updates."""
     try:
-        # Update config file
         with open(config.CONFIG_PATH, "w") as f:
             json.dump(config_data, f, indent=4)
         logger.info(f"Config file updated: {config_data}")
 
-        # Reload config in memory
         config.load()
         logger.info("Config reloaded")
     except Exception as e:
@@ -68,10 +66,9 @@ while True:
 
     if is_sensor_valid:
         sensor_value = pre_process_sensor_data(sensor_value)
-
-    # --- Publish pacing ---
+        # intervel
     if now - last_publish_time >= PUBLISH_INTERVAL:
-        # Collect system metrics
+        # get cpu details
         cpu_percent = psutil.cpu_percent(interval=0.0)
         mem_percent = psutil.virtual_memory().percent
 
@@ -93,5 +90,4 @@ while True:
         seq_counter += 1
         last_publish_time = now
 
-    # Prevent CPU burn
     time.sleep(0.05)
