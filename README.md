@@ -1,6 +1,6 @@
 # AuraStairs
 
-AuraStairs is an MQTT-based motion monitoring system designed to capture sensor data from a Raspberry Pi and display it in a desktop application. The system supports real-time configuration updates, which are published over MQTT and persisted locally.
+AuraStairs is a decentralized MQTT-based motion monitoring system designed to capture sensor data from a Raspberry Pi and display it in a desktop application. The system supports real-time configuration updates, which are published over MQTT and persisted locally.
 
 > Built as part of an edge device case study at Deggendorf Institute of Technology (DIT).
 
@@ -11,6 +11,9 @@ AuraStairs is an MQTT-based motion monitoring system designed to capture sensor 
 ![Architecture Diagram](images/arch.png)
 
 ---
+
+## Hardware
+![Hardware Setup](images/hardware.jpg)
 
 ## Features
 
